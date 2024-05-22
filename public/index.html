@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #474646;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            width: 500px;
+        }
+        .container h2 {
+            margin-bottom: 20px;
+        }
+        .container input {
+            width: 84%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .container button {
+            width: 88%;
+            padding: 10px;
+            background-color: #4367e0;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .container button:hover {
+            background-color: #4367e0;
+        }
+        .message {
+            margin-top: 20px;
+        }
+        .toggle-link {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+            cursor: pointer;
+            color: #007bff;
+        }
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-container">
+        <h2>Login</h2>
+        <input type="text" id="login-username" placeholder="Username" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button onclick="login()">Login</button>
+        <div class="message" id="login-message"></div>
+        <div class="toggle-link" onclick="toggleForm('signup')">Don't have an account? Sign up</div>
+    </div>
+
+    <div class="container" id="signup-container" style="display: none;">
+        <h2>Sign Up</h2>
+        <input type="text" id="signup-username" placeholder="Username" required>
+        <input type="password" id="signup-password" placeholder="Password" required>
+        <button onclick="signup()">Sign Up</button>
+        <div class="message" id="signup-message"></div>
+        <div class="toggle-link" onclick="toggleForm('login')">Already have an account? Log in</div>
+    </div>
+
+    <script>
+        function toggleForm(form) {
+            if (form === 'signup') {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('signup-container').style.display = 'block';
+            } else {
+                document.getElementById('signup-container').style.display = 'none';
+                document.getElementById('login-container').style.display = 'block';
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            
+            console.log('Login attempt:', { username, password });
+
+            const response = await fetch('http://localhost:3001/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            console.log('Login response:', data);
+
+            if (response.ok) {
+                document.getElementById('login-message').innerText = `Login successful! Token: ${data.token}`;
+                localStorage.setItem('token', data.token);
+            } else {
+                document.getElementById('login-message').innerText = `Error: ${data.msg}`;
+            }
+        }
+
+        async function signup() {
+            const username = document.getElementById('signup-username').value;
+            const password = document.getElementById('signup-password').value;
+            
+            console.log('Signup attempt:', { username, password });
+
+            const response = await fetch('http://localhost:3001/api/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            console.log('Signup response:', data);
+
+            if (response.ok) {
+                document.getElementById('signup-message').innerText = 'Signup successful! You can now log in.';
+                toggleForm('login');
+            } else {
+                document.getElementById('signup-message').innerText = `Error: ${data.msg}`;
+            }
+        }
+    </script>
+</body>
+</html>
